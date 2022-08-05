@@ -1,74 +1,53 @@
-# A statically generated landing page with Next.js and Makeswift
+# A makeswift proof of concept for fetching dyamic data at build time
 
-This example showcases how you can use [Makeswift](https://www.makeswift.com/) to visually build statically generated pages in Next.js.
+The proof of concept is done with the help of lodash:s get-function and uses swr for data fetching. It works by creating a composite key which maps to an URI, a separator ("$$") and an object path. 
 
-## Deploy your own
+In the example the below spoof data is used.
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+```
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/cms-makeswift&project-name=cms-makeswift&repository-name=cms-makeswift)
+const fetchFromEndpoint = (_key: string) => {
 
-## Demo
+  return Promise.resolve(
+    {
+        "abc": "def",
+        "def": [
+          1, "2"
+        ]
+    }
+  )
 
-### [https://nextjs-makeswift-example.vercel.app/](https://nextjs-makeswift-example.vercel.app/)
+}
 
-## How to use
 
-1. Download the example:
+const preloaded: DataMapping = {
+  
+  '/': [
+    '/data'
+  ],
+  '/protocols': []
+}
 
-   Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+```
 
-   ```bash
-   npx create-next-app --example cms-makeswift cms-makeswift-app
-   # or
-   yarn create next-app --example cms-makeswift cms-makeswift-app
-   # or
-   pnpm create next-app --example cms-makeswift cms-makeswift-app
-   ```
+The spoof data generates a fallback object for swr with the following strcuture 
+```
+{
+    "/data$$abc": "def",
+    "/data$$def[0]": 1,
+    "/data$$def[1]": "2",
+    "/data": {
+        "abc": "def",
+        "def": [
+            1,
+            "2"
+        ]
+    }
+}
+```
 
-2. Install dependencies:
+Note that for big objects with many nested fields it might be valueable to filter out some paths that you know you will not use. 
 
-   ```bash
-   yarn install
-   # or
-   npm install
-   # or
-   pnpm install
-   ```
+For example by using a filter function after the destructuring method.
 
-3. Rename the `.env.local.example` file to `.env.local` and include your Makeswift site's API key:
-
-   ```diff
-   -- MAKESWIFT_API_HOST=
-   -- MAKESWIFT_SITE_API_KEY=
-   ++ MAKESWIFT_API_HOST=https://api.makeswift.com
-   ++ MAKESWIFT_SITE_API_KEY=<YOUR_MAKESWIFT_SITE_API_KEY>
-   ```
-
-4. Run the local dev script:
-
-   ```bash
-   yarn dev
-   # or
-   npm run dev
-   ```
-
-   Your host should be up and running on http://localhost:3000.
-
-5. Finally, go to your Makeswift site settings and add http://localhost:3000/makeswift as the host URL and you're all set!
-
-## Deploy it
-
-When you're ready to go live, deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)). All you'll need to do is update your host inside of Makeswift to your Vercel deployment.
-
-## Next steps
-
-With Makeswift, you can give your marketing team custom building blocks to create high quality Next.js pages.
-
-To learn more about Makeswift, take a look at the following resources:
-
-- [Makeswift Website](https://www.makeswift.com/)
-- [Makeswift Documentation](https://www.makeswift.com/docs/)
-- [Makeswift Discord Community](https://discord.gg/dGNdF3Uzfz)
-
-You can check out [the Makeswift GitHub repository](https://github.com/makeswift/makeswift) - your feedback and contributions are welcome!
+The project includes two components for fetching data via Makeswift by entering a data-URI in the components. 

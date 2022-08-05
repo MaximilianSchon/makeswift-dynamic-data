@@ -23,6 +23,16 @@ const fetchFromEndpoint = (_key: string) => {
 }
 
 
+const preloaded: DataMapping = {
+  
+  '/': [
+    '/data'
+  ],
+  '/protocols': []
+}
+
+
+
 const fetcher = async (key: string, sep: string = "$$") => {
   const [endpoint, objectKey] = key.split(sep);
   const endpointData = await fetchFromEndpoint(endpoint);
@@ -31,14 +41,6 @@ const fetcher = async (key: string, sep: string = "$$") => {
 
 type DataMapping = {
   [key: string]: string[];
-}
-
-const preloaded: DataMapping = {
-  
-  '/': [
-    '/data'
-  ],
-  '/protocols': []
 }
 
 type Data = {
@@ -87,7 +89,7 @@ export const getStaticProps = async (props: GetStaticPropsContext<{ path: string
       ...acc,
       ...destructure(value, `${key}$$`, {}),
       [key]: value,
-     }), {})
+}), {})
      
     } 
   }  
@@ -99,6 +101,7 @@ type Fallback = {
 
 
 const IndexPage = ({fallback, ...props}: PageProps & Fallback) => {
+  console.log(fallback)
   return <SWRConfig value={{ fallback, fetcher }}><Page {...props} /></SWRConfig>
 }
 
